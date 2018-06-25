@@ -3,10 +3,9 @@ volumes += secretVolume(secretName: 'jenkins-docker-sec', mountPath: '/jenkins_d
 podTemplate(label: 'icp-liberty-build',
             nodeSelector: 'beta.kubernetes.io/arch=amd64',
     containers: [
-        containerTemplate(name: 'jnlp', image: 'dc1cp01.icp:8500/default/jnlp-slave', ttyEnabled: true),
-        containerTemplate(name: 'maven', image: 'dc1cp01.icp:8500/default/maven:3.5.2-jdk-8-june2018.1', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'docker', image: 'dc1cp01.icp:8500/default/docker:17.12-june2018.1', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'kubectl', image: 'dc1cp01.icp:8500/default/k8s-kubectl:v1.8.3', ttyEnabled: true, command: 'cat'),
+        containerTemplate(name: 'maven', image: 'maven:3.5.3-jdk-8', ttyEnabled: true, command: 'cat'),
+        containerTemplate(name: 'docker', image: 'docker:17.12', ttyEnabled: true, command: 'cat'),
+        containerTemplate(name: 'kubectl', image: 'ibmcom/k8s-kubectl:v1.8.3', ttyEnabled: true, command: 'cat'),
     ],
     volumes: volumes
 )
@@ -27,7 +26,7 @@ podTemplate(label: 'icp-liberty-build',
         }
          stage ('docker') {
           container('docker') {
-            def imageTag = "dc1cp01.icp:8500/jenkinstest/jenkinstest:${gitCommit}"
+            def imageTag = "mycluster.icp:8500/jenkinstest/jenkinstest:${gitCommit}"
             echo "imageTag ${imageTag}"
             sh """
             ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
@@ -48,7 +47,7 @@ podTemplate(label: 'icp-liberty-build',
             echo "checking if jenkinstest-deployment already exists"
             if kubectl describe deployment jenkinstest-deployment --namespace jenkinstest; then
                 echo "Application already exists, update..."
-                kubectl set image deployment/jenkinstest-deployment jenkinstest=dc1cp01.icp:8500/jenkinstest/jenkinstest:${imageTag} --namespace jenkinstest
+                kubectl set image deployment/jenkinstest-deployment jenkinstest=mycluster.icp:8500/jenkinstest/jenkinstest:${imageTag} --namespace jenkinstest
             else
                 sed -i "s/<DOCKER_IMAGE>/jenkinstest:${imageTag}/g" manifests/kube.deploy.yml
                 echo "Create deployment"
