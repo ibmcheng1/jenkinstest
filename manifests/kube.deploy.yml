@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: jenkinstest
-        image: dc1cp01.icp:8500/jenkinstest/<DOCKER_IMAGE>
+        image: mycluster.icp:8500/jenkinstest/<DOCKER_IMAGE>
         readinessProbe:
           httpGet:
             path: /jenkinstest/health
