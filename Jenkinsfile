@@ -5,7 +5,7 @@ podTemplate(label: 'icp-liberty-build',
     containers: [
         containerTemplate(name: 'maven', image: 'maven:3.5.3-jdk-8', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'docker', image: 'docker:17.12', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'kubectl', image: 'ibmcom/k8s-kubectl:v1.8.3', ttyEnabled: true, command: 'cat'),
+
     ],
     volumes: volumes
 )
@@ -38,27 +38,62 @@ podTemplate(label: 'icp-liberty-build',
             """
           }
         }
-        stage ('deploy') {
-          container('kubectl') {
+        
+        stage ('Push to UCD...') {		
             def imageTag = null
             imageTag = gitCommit
             sh """
             #!/bin/bash
-            echo "checking if jenkinstest-deployment already exists"
-            if kubectl describe deployment jenkinstest-deployment --namespace jenkinstest; then
-                echo "Application already exists, update..."
-                kubectl set image deployment/jenkinstest-deployment jenkinstest=mycluster.icp:8500/jenkinstest/jenkinstest:${imageTag} --namespace jenkinstest
-            else
-                sed -i "s/<DOCKER_IMAGE>/jenkinstest:${imageTag}/g" manifests/kube.deploy.yml
-                echo "Create deployment"
-                kubectl apply -f manifests/kube.deploy.yml --namespace jenkinstest
-                echo "Create service"
-            fi
-            echo "Describe deployment"
-            kubectl describe deployment jenkinstest-deployment --namespace jenkinstest
-            echo "finished"
+	    pwd
+	    ls -l
+            echo "imageTag: ${imageTag}"
+            echo "BUILD_NUMBER: ${BUILD_NUMBER}"
+	    echo "WORKSPACE: ${WORKSPACE}"
             """
-          }
-        }
+	    step([$class: 'UCDeployPublisher',
+	            siteName: 'UCD-Server',
+	            component: [
+	                $class: 'com.urbancode.jenkins.plugins.ucdeploy.VersionHelper$VersionBlock',
+	                componentName: 'JenkinsTest',
+	                createComponent: [
+	                    $class: 'com.urbancode.jenkins.plugins.ucdeploy.ComponentHelper$CreateComponentBlock',
+	                    componentTemplate: 'HelmChartTemplate',
+	                    componentApplication: 'JenkinsTestApp'
+	                ],
+	                delivery: [
+	                    $class: 'com.urbancode.jenkins.plugins.ucdeploy.DeliveryHelper$Push',
+	                    pushVersion: '${BUILD_NUMBER}',
+	                    baseDir: '/var/lib/jenkins/workspace/JenkinsUCDtest_master-GSJH5RUKHTMOJOZ56VZPJHYWVWHRTNGSXAWNZC7U3VUJCVM4XMDQ/chart/jenkinstest',
+	                    fileIncludePatterns: '/**',
+	                    fileExcludePatterns: '',
+	                  
+	                    pushDescription: 'Pushed from Jenkins',
+	                    pushIncremental: false
+	                ]			    
+	            ]
+                 ])
+	
+	     step([$class: 'UCDeployPublisher',
+	            siteName: 'UCD-Server',
+	            component: [
+	                $class: 'com.urbancode.jenkins.plugins.ucdeploy.VersionHelper$VersionBlock',
+	                componentName: 'JenkinsTest',
+		    deploy: [
+	                        $class: 'com.urbancode.jenkins.plugins.ucdeploy.DeployHelper$DeployBlock',
+	                        deployApp: 'JenkinsTestApp',
+	                        deployEnv: 'Dev',
+	            	deployProc: 'Deploy Application',
+	            	createProcess: [
+	                	    $class: 'com.urbancode.jenkins.plugins.ucdeploy.ProcessHelper$CreateProcessBlock',
+	                            processComponent: 'Deploy'
+	                        ],
+	           	            deployVersions: '${BUILD_NUMBER}',
+	                        deployOnlyChanged: false
+        		    ]			    
+	            ]
+                  ])	
+							
+	}     	        
+                
     }
 }
