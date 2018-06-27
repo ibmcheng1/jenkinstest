@@ -18,6 +18,29 @@ podTemplate(label: 'icp-liberty-build',
           echo "checked out git commit ${gitCommit}"
         }
 
+	stage ('maven build') {
+          container('maven') {
+            sh '''
+            mvn clean test install
+            '''
+          }
+        }
+	    
+        stage ('docker') {
+          container('docker') {
+            def imageTag = "mycluster.icp:8500/jenkinstest/jenkinstest:${gitCommit}"
+            echo "imageTag ${imageTag}"
+            sh """
+            ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
+            mkdir /home/jenkins/.docker
+            ln -s /jenkins_docker_sec/.dockerconfigjson /home/jenkins/.docker/config.json
+            docker build -t jenkinstest .
+            docker tag jenkinstest $imageTag
+            docker push $imageTag
+            """
+          }
+        }
+
         
         stage ('Push to UCD...') {		
             def imageTag = null
