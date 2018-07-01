@@ -1,5 +1,5 @@
 FROM  websphere-liberty:webProfile6
-RUN keytool -keystore /opt/ibm/java/jre/lib/security/cacerts -storepass changeit -noprompt -trustcacerts -importcert --alias issuing -file /usr/local/share/ca-certificates/issuing.crt
+# RUN keytool -keystore /opt/ibm/java/jre/lib/security/cacerts -storepass changeit -noprompt -trustcacerts -importcert --alias issuing -file /usr/local/share/ca-certificates/issuing.crt
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
 COPY /target/liberty/wlp/usr/shared/resources /config/resources/
 COPY /src/main/liberty/config/jvmbx.options /config/jvm.options
