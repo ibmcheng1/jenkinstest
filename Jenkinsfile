@@ -1,5 +1,5 @@
 
-def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
+//def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock') ]
 //volumes += secretVolume(secretName: 'microclimate-registry-secret', mountPath: '/jenkins_docker_sec')
 //volumes += secretVolume(secretName: 'sa-default', mountPath: '/jenkins_docker_sec')
 
@@ -8,7 +8,7 @@ def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/va
 //    volumes: volumes
 //)
 
-{
+//{
     node ('icp-liberty-build') {
         def gitCommit
         def imageTag
@@ -137,4 +137,4 @@ def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/va
 
 
     }
-}
+//}
