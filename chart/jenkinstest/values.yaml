@@ -3,8 +3,8 @@
 replicaCount: 1
 revisionHistoryLimit: 1
 image:
-  repository: dc1cp01.icp:8500/jenkinstest/jenkinstest
-  tag: 7aa33a2
+  repository: mycluster.icp:8500/jenkinstest/jenkinstest
+  tag: @@@TAG@@@
   pullPolicy: IfNotPresent
   resources:
     requests:
