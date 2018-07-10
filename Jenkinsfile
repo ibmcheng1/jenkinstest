@@ -9,6 +9,7 @@ podTemplate(label: 'icp-liberty-build',
     ],
     volumes: volumes
 )
+
 {
     node ('icp-liberty-build') {
         def gitCommit
