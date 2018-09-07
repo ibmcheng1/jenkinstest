@@ -13,20 +13,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
 {
     node ('icp-liberty-build-jenkinstest') {
         
-         stage ('docker') {
-          container('docker') {
-            def imageTag = "mycluster.icp:8500/default/jenkinstest:fa84914"
-            echo "imageTag ${imageTag}"
-            sh """
-            ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
-            mkdir /home/jenkins/.docker
-            ln -s /jenkins_docker_sec/.dockerconfigjson /home/jenkins/.docker/config.json
-            
-            docker tag jenkinstest $imageTag
-            docker push $imageTag
-            """
-          }
-        }
+
         stage ('deploy') {
           container('kubectl') {
             def imageTag = null
