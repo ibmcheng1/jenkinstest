@@ -5,7 +5,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
     containers: [
         containerTemplate(name: 'jnlp', image: 'mycluster.icp:8500/default/jenkins/jnlp-slave:3.10-1'),
         containerTemplate(name: 'maven', image: 'mycluster.icp:8500/default/maven:3.5.4-jdk-8', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'docker', image: 'mycluster.icp:8500/default/docker:17.12', ttyEnabled: true, command: 'cat'),
+        //containerTemplate(name: 'docker', image: 'mycluster.icp:8500/default/docker:17.12', ttyEnabled: true, command: 'cat'),
     ],
     volumes: volumes
 )
@@ -20,7 +20,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         stage ('maven build') {
           container('maven') {
             sh '''
-            mvn clean test install
+            mvn clean test install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default|localhost|127.0.0.1
             '''
           }
         }
