@@ -20,7 +20,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         stage ('maven build') {
           container('maven') {
             sh '''
-            mvn clean test install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default           
+            # mvn clean test install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default           
             mvn clean install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default
             '''
           }
