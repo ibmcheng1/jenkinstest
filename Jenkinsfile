@@ -17,6 +17,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
             def imageTag = "mycluster.icp:8500/default/jenkinstest:fa84914"
             echo "imageTag ${imageTag}"
             sh """
+            docker tag jenkinstest $imageTag
             docker push $imageTag
             """
           }
