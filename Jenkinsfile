@@ -11,7 +11,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
 )
 {
     node ('icp-liberty-build-jenkinstest') {
-        def gitCommit
+        //def gitCommit
         stage ('Extract') {
           checkout scm
           gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
