@@ -20,6 +20,8 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
             imageTag = "fa84914"
             sh """
             #!/bin/bash
+            pwd
+            ls -l
             echo "checking if jenkinstest-deployment already exists"
             if kubectl describe deployment jenkinstest-deployment --namespace jenkinstest; then
                 echo "Application already exists, update..."
