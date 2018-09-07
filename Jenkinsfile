@@ -14,7 +14,8 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         
          stage ('docker') {
           container('docker') {
-            def imageTag = "mycluster.icp:8500/jenkinstest/jenkinstest:${gitCommit}"
+            gitCommit=fa84914
+            def imageTag = "mycluster.icp:8500/default/jenkinstest:${gitCommit}"
             echo "imageTag ${imageTag}"
             sh """
             ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
