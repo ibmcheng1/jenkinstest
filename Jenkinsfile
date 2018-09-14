@@ -3,7 +3,7 @@ def volumes = [ hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/va
 volumes += secretVolume(secretName: 'jenkins-docker-sec', mountPath: '/jenkins_docker_sec')
 podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
     containers: [
-        containerTemplate(name: 'jnlp', image: 'mycluster.icp:8500/default/jenkins/jnlp-slave:3.10-1'),
+        containerTemplate(name: 'jnlp', image: 'mycluster.icp:8500/default/jenkins/jnlp-slave:3.23-1'),
         containerTemplate(name: 'maven', image: 'mycluster.icp:8500/default/maven:3.5.4-jdk-8', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'docker', image: 'mycluster.icp:8500/default/docker:17.12', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'kubectl', image: 'mycluster.icp:8500/default/ibmcom/k8s-kubectl:v1.8.3', ttyEnabled: true, command: 'cat'),       
@@ -21,8 +21,9 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         stage ('maven build') {
           container('maven') {
             sh '''
+            echo "maven build ... "
             # mvn clean test install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default           
-            mvn clean install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default
+            # mvn clean install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default
             '''
           }
         }
@@ -30,14 +31,6 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
           container('docker') {
             def imageTag = "mycluster.icp:8500/default/jenkinstest:${gitCommit}"
             echo "imageTag ${imageTag}"
-            sh """
-            ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
-            mkdir /home/jenkins/.docker
-            ln -s /jenkins_docker_sec/.dockerconfigjson /home/jenkins/.docker/config.json
-            docker build -t jenkinstest .
-            docker tag jenkinstest $imageTag
-            docker push $imageTag
-            """
           }
         }       
 
@@ -49,16 +42,6 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
             #!/bin/bash
             pwd
             ls -l
-            echo "checking if jenkinstest-deployment already exists"
-            if kubectl describe deployment jenkinstest-deployment --namespace jenkinstest; then
-                echo "Application already exists, update..."
-                kubectl set image deployment/jenkinstest-deployment jenkinstest=mycluster.icp:8500/jenkinstest/jenkinstest:${imageTag} --namespace jenkinstest
-            else
-                sed -i "s/<DOCKER_IMAGE>/jenkinstest:${imageTag}/g" manifests/kube.deploy.yml
-                echo "Create deployment"
-                kubectl apply -f manifests/kube.deploy.yml --namespace jenkinstest
-                echo "Create service"
-            fi
             echo "Describe deployment"
             kubectl describe deployment jenkinstest-deployment --namespace jenkinstest
             echo "finished"
