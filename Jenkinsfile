@@ -21,32 +21,24 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         stage ('maven build') {
           container('maven') {
             sh '''
-            echo "maven build ... "
-            # mvn clean test install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default           
-            # mvn clean install -Dhttp.proxyHost=172.21.254.254 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=172.21.254.254 -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts=kubernetes.default
+            mvn clean test install
             '''
           }
         }
-          stage ('docker') {
+         stage ('docker') {
           container('docker') {
-            def imageTag = "mycluster.icp:8500/default/jenkinstest:${gitCommit}"
+            def imageTag = "mycluster.icp:8500/jenkinstest/jenkinstest:${gitCommit}"
             echo "imageTag ${imageTag}"
-          }
-        }       
-
-        stage ('deploy') {
-          container('kubectl') {
-            def imageTag = null
-            imageTag = "fa84914"
             sh """
-            #!/bin/bash
-            pwd
-            ls -l
-            echo "Describe deployment"
-            kubectl describe deployment jenkinstest-deployment --namespace jenkinstest
-            echo "finished"
+            ln -s /jenkins_docker_sec/.dockercfg /home/jenkins/.dockercfg
+            mkdir /home/jenkins/.docker
+            ln -s /jenkins_docker_sec/.dockerconfigjson /home/jenkins/.docker/config.json
+            docker build -t jenkinstest .
+            docker tag jenkinstest $imageTag
+            docker push $imageTag
             """
           }
         }
+
     }
 }
