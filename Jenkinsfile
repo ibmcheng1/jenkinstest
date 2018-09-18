@@ -89,8 +89,12 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
 		  echo "UCD_Deploy_Version = ${UCD_Deploy_Version}"
 		  echo "TARGET_FILE = ${TARGET_FILE}"
 		  echo "-------------------------"
+		  echo "Verify target file: ${UCD_DELIVERY_BASE_DIR}"
+		  ls -l ${UCD_DELIVERY_BASE_DIR}
+		  echo "-------------------------"
 		  echo "Verify target file: ${TARGET_FILE}"
 		  ls -l ${TARGET_FILE}
+		  echo "-------------------------"
 		  echo "update TAG before: "
 		  cat ${TARGET_FILE} | grep tag:
 		  sed -i "s|@@@TAG@@@|${imageTag}|g" ${TARGET_FILE}
