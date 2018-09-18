@@ -41,7 +41,7 @@ podTemplate(label: 'icp-liberty-build-jenkinstest', slaveConnectTimeout: 600,
         }
         
         stage ('ucd') {
-		  def componentName = "JenkinsTest"
+		  def componentName = "jenkinstest"
 		  def applicationName = "JenkinsTestApp"
 		  def deploymentEnvironment = "Dev"
 		  def deployProcess = "Deploy"
